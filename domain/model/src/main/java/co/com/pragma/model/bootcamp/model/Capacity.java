@@ -8,11 +8,13 @@ public class Capacity {
     private Long id;
     private String name;
     private List<Technology> technologies;
+    private int quantityTechnologies;
 
-    public Capacity(Long id, String name, List<Technology> technologies) {
+    public Capacity(Long id, String name, List<Technology> technologies, int quantityTechnologies) {
         this.id = id;
         this.name = name;
         this.technologies = technologies;
+        this.quantityTechnologies = quantityTechnologies;
     }
 
     public Capacity() {
@@ -40,5 +42,13 @@ public class Capacity {
 
     public void setTechnologies(List<Technology> technologies) {
         this.technologies = technologies;
+    }
+
+    public int getQuantityTechnologies() {
+        return quantityTechnologies;
+    }
+
+    public void setQuantityTechnologies(int quantityTechnologies) {
+        this.quantityTechnologies = quantityTechnologies;
     }
 }

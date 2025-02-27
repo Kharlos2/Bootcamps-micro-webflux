@@ -33,4 +33,19 @@ public class Handler {
                         .body(bootcampServicePort.save(saveCapacity).map(bootcampMapper::toSaveResponseDTO), SaveBootcampResponseDTO.class)
         );
     }
+
+    public Mono<ServerResponse> findAllBootcamps(ServerRequest request) {
+        int page = Integer.parseInt(request.queryParam("page").orElse("0"));
+        int size = Integer.parseInt(request.queryParam("size").orElse("10"));
+        String sortBy = request.queryParam("sortBy").orElse("name");
+        String sortOrder = request.queryParam("sortOrder").orElse("asc");
+
+        return bootcampServicePort.findAllBootcamps(page, size, sortBy, sortOrder)
+                .flatMap(response -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(response)
+                );
+    }
+
+
 }
