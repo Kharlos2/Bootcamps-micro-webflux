@@ -5,15 +5,15 @@ import co.com.pragma.model.bootcamp.api.IBootcampServicePort;
 import co.com.pragma.model.bootcamp.exceptions.CustomException;
 import co.com.pragma.model.bootcamp.exceptions.ExceptionsEnum;
 import co.com.pragma.model.bootcamp.exceptions.HttpException;
-import co.com.pragma.model.bootcamp.model.Bootcamp;
-import co.com.pragma.model.bootcamp.model.CapacityBootcamp;
+import co.com.pragma.model.bootcamp.model.*;
 import co.com.pragma.model.bootcamp.spi.IBootcampPersistencePort;
 import co.com.pragma.model.bootcamp.spi.ICapacityPersistencePort;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
+import java.util.List;
 
-public class BootcampUseCase implements IBootcampServicePort {
+public class  BootcampUseCase implements IBootcampServicePort {
 
     private final IBootcampPersistencePort bootcampPersistencePort;
     private final ICapacityPersistencePort capacityPersistencePort;
@@ -47,6 +47,34 @@ public class BootcampUseCase implements IBootcampServicePort {
                                             })
                             );
                 });
+    }
+
+    @Override
+    public Mono<PagedResponse<CapacityBootcampSearch>> findAllBootcamps(int page, int size, String sortBy, String sortOrder) {
+        return bootcampPersistencePort.findAllBootcamps(page, size, sortBy, sortOrder)
+                .concatMap(bootcamp -> { // Mantiene el orden de la paginación
+                    Mono<List<Capacity>> capacitiesMono = capacityPersistencePort.getCapabilitiesByBootcampId(bootcamp.getId())
+                            .collectList()
+                            .cache(); // Evita la doble llamada a getCapabilitiesByBootcampId
+
+                    Mono<Long> countMono = capacitiesMono.map(List::size).map(Integer::longValue); // Convertimos Integer a Long
+
+                    return Mono.zip(capacitiesMono, countMono)
+                            .map(tuple -> new CapacityBootcampSearch(
+                                    bootcamp.getId(),
+                                    bootcamp.getName(),
+                                    tuple.getT1(),
+                                    bootcamp.getQuantityCapabilities()
+                            ));
+                })
+                .collectList()
+                .zipWith(bootcampPersistencePort.countBootcamps().map(i -> i)) // Conversión a Long
+                .map(tuple -> new PagedResponse<>(
+                        tuple.getT2(), // totalElements convertido a Long
+                        page,
+                        size,
+                        tuple.getT1() // Lista de CapacityBootcampSearch
+                ));
     }
 
     private Mono<Void> validateBootcamp(Bootcamp bootcamp) {

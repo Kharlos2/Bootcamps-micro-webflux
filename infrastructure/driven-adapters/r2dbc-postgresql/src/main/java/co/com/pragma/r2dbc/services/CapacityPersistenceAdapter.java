@@ -1,12 +1,14 @@
 package co.com.pragma.r2dbc.services;
 
 import co.com.pragma.model.bootcamp.exceptions.HttpException;
+import co.com.pragma.model.bootcamp.model.Capacity;
 import co.com.pragma.model.bootcamp.model.CapacityBootcamp;
 import co.com.pragma.model.bootcamp.model.ValidationResponse;
 import co.com.pragma.model.bootcamp.spi.ICapacityPersistencePort;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class CapacityPersistenceAdapter implements ICapacityPersistencePort {
@@ -33,5 +35,11 @@ public class CapacityPersistenceAdapter implements ICapacityPersistencePort {
                 )
                 .bodyToMono(ValidationResponse.class)
                 .onErrorResume(ex -> Mono.just(new ValidationResponse("Error al conectar con capacity-bootcamp: " + ex.getMessage(), false)));
+    }
+    @Override
+    public Flux<Capacity> getCapabilitiesByBootcampId(Long bootcampId) {
+        return webClient.get().uri("/capacity-bootcamp?bootcampId=" + bootcampId)
+                .retrieve()
+                .bodyToFlux(Capacity.class);
     }
 }
