@@ -28,7 +28,7 @@ public class  BootcampUseCase implements IBootcampServicePort {
     public Mono<Bootcamp> save(Bootcamp bootcamp) {
 
         return validateBootcamp(bootcamp)
-                .then(checkIfBootcampExists(bootcamp.getName()))
+                .then(Mono.defer(() -> checkIfBootcampExists(bootcamp.getName()))
                 .flatMap(exists -> {
                     if (Boolean.TRUE.equals(exists)) {
                         return Mono.error(new CustomException(ExceptionsEnum.DUPLICATE_BOOTCAMP));
@@ -46,7 +46,7 @@ public class  BootcampUseCase implements IBootcampServicePort {
                                                 return Mono.just(bootcampSaved);
                                             })
                             );
-                });
+                }));
     }
 
     @Override
