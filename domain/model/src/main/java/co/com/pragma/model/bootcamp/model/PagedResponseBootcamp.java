@@ -2,18 +2,18 @@ package co.com.pragma.model.bootcamp.model;
 
 import java.util.List;
 
-public class PagedResponse<T> {
+public class PagedResponseBootcamp {
 
     private long count;
     private int page;
     private int size;
-    private List<T> items;
+    private List<CapacityBootcampSearch> capabilities;
 
-    public PagedResponse(long count, int page, int size, List<T> items) {
+    public PagedResponseBootcamp(long count, int page, int size, List<CapacityBootcampSearch> capabilities) {
         this.count = count;
         this.page = page;
         this.size = size;
-        this.items = items;
+        this.capabilities = capabilities;
     }
 
     // Getters y Setters
@@ -41,12 +41,12 @@ public class PagedResponse<T> {
         this.size = size;
     }
 
-    public List<T> getItems() {
-        return items;
+    public List<CapacityBootcampSearch> getItems() {
+        return capabilities;
     }
 
-    public void setItems(List<T> items) {
-        this.items = items;
+    public void setItems(List<CapacityBootcampSearch> capabilites) {
+        this.capabilities = capabilites;
     }
 
 }

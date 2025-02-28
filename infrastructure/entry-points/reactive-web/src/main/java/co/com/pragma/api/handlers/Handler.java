@@ -5,7 +5,7 @@ import co.com.pragma.api.dto.SaveBootcampResponseDTO;
 import co.com.pragma.api.mapper.IBootcampMapper;
 import co.com.pragma.model.bootcamp.api.IBootcampServicePort;
 import co.com.pragma.model.bootcamp.model.Bootcamp;
-import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -28,7 +28,7 @@ public class Handler {
                 .bodyToMono(SaveBootcampDTO.class)
                 .map(bootcampMapper::toModel);
         return capacityMono.flatMap(saveCapacity->
-                ServerResponse.ok()
+                ServerResponse.status(HttpStatusCode.valueOf(201))
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(bootcampServicePort.save(saveCapacity).map(bootcampMapper::toSaveResponseDTO), SaveBootcampResponseDTO.class)
         );

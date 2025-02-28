@@ -50,7 +50,7 @@ public class  BootcampUseCase implements IBootcampServicePort {
     }
 
     @Override
-    public Mono<PagedResponse<CapacityBootcampSearch>> findAllBootcamps(int page, int size, String sortBy, String sortOrder) {
+    public Mono<PagedResponseBootcamp> findAllBootcamps(int page, int size, String sortBy, String sortOrder) {
         return bootcampPersistencePort.findAllBootcamps(page, size, sortBy, sortOrder)
                 .concatMap(bootcamp -> { // Mantiene el orden de la paginación
                     Mono<List<Capacity>> capacitiesMono = capacityPersistencePort.getCapabilitiesByBootcampId(bootcamp.getId())
@@ -69,7 +69,7 @@ public class  BootcampUseCase implements IBootcampServicePort {
                 })
                 .collectList()
                 .zipWith(bootcampPersistencePort.countBootcamps().map(i -> i)) // Conversión a Long
-                .map(tuple -> new PagedResponse<>(
+                .map(tuple -> new PagedResponseBootcamp(
                         tuple.getT2(), // totalElements convertido a Long
                         page,
                         size,
